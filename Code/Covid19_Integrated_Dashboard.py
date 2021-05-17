@@ -84,7 +84,7 @@ current_batch = current_batch.reshape(1, seq_size, n_features) #Reshape
 ## Predict future, beyond test dates
 model = load_model("C:\\Users\\catch\\Downloads\\MTP 2021\\model_load\\W1_trend_model",compile = False)
 
-future = 3 #Days
+future = 7 #Days
 for i in range(len(test) + future):
     current_pred = model.predict(current_batch)[0]
     prediction.append(current_pred)
@@ -163,7 +163,7 @@ current_batch = current_batch.reshape(1, seq_size, n_features) #Reshape
 ## Predict future, beyond test dates
 model = load_model("C:\\Users\\catch\\Downloads\\MTP 2021\\model_load\\W2_trend_model",compile = False)
 
-future = 3 #Days
+future = 7 #Days
 for i in range(len(test) + future):
     current_pred = model.predict(current_batch)[0]
     prediction.append(current_pred)
@@ -239,7 +239,7 @@ current_batch = current_batch.reshape(1, seq_size, n_features) #Reshape
 ## Predict future, beyond test dates
 model = load_model("C:\\Users\\catch\\Downloads\\MTP 2021\\model_load\\W3_trend_model",compile = False)
 
-future = 3 #Days
+future =7 #Days
 for i in range(len(test) + future):
     current_pred = model.predict(current_batch)[0]
     prediction.append(current_pred)
@@ -273,11 +273,11 @@ trend3.update_layout(margin=dict(
                     r=1, l=1,
                     b=1, t=1))
 
-slope1=abs(df_forecast1['predicted'][-1]-df_forecast1['predicted'][-3])/3
+slope1=abs(df_forecast1['predicted'][-1]-df_forecast1['predicted'][-future])/future
 slope1=grouped['Bed Capacity'][0]/slope1
-slope2=abs(df_forecast2['predicted'][-1]-df_forecast2['predicted'][-3])/3
+slope2=abs(df_forecast2['predicted'][-1]-df_forecast2['predicted'][-future])/future
 slope2=grouped['Bed Capacity'][1]/slope2
-slope3=abs(df_forecast3['predicted'][-1]-df_forecast3['predicted'][-3])/3
+slope3=abs(df_forecast3['predicted'][-1]-df_forecast3['predicted'][-future])/future
 slope3=grouped['Bed Capacity'][2]/slope3
 
 ci_status = pd.read_csv("C:\\Users\\catch\\Downloads\\CI_status.csv")
@@ -467,6 +467,43 @@ import numpy as np
 
 # Define random surface
 plotfig = go.Figure()
+
+maddpg_fig= go.Figure()
+maddpg_fig.add_trace(
+    go.Scatter(
+        mode="markers",
+        marker_opacity=0,
+        x=[0, 500],
+        y=[0, 500]
+    )
+)
+maddpg_fig.update_xaxes(visible=False)
+maddpg_fig.update_yaxes(visible=False)
+#maddpg_fig.add_layout_image(dict(source="C:/Users/catch/OneDrive/Pictures/Sysmex_offer.PNG"))
+
+# Add image
+maddpg_fig.add_layout_image(
+    dict(
+        x=0,
+        sizex=500,
+        y=500,
+        sizey=500,
+        xref="x",
+        yref="y",
+        opacity=1.0,
+        layer="below",
+        sizing="stretch",
+        source="https://raw.githubusercontent.com/SrikanthIITB/Reinforcement-learning-based-Real-time-Situational-Awareness-for-CI-Protection-Resiliency-Covid-19/e5d3eada9f2d14c0e65b0018f6c72c9746d06934/Code/Model/MADDPG_REWARDS.PNG")
+)
+maddpg_fig.update_layout(
+    width=730,
+    height=350,
+    margin={"l": 0, "r": 0, "t": 0, "b": 0},
+)
+
+
+
+
 dfs = pd.read_csv("C:\\Users\\catch\\Downloads\\mumbai_hospitals.csv")
 xx1=df[df['ward']=='Ward 1']['lat']
 yy1=df[df['ward']=='Ward 1']['long']
@@ -562,7 +599,7 @@ map_fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 
 
 card_content1 = [
-    dbc.CardHeader("Hospital"),
+    dbc.CardHeader("Hospital",style={'fontSize':20}),
     dbc.CardBody(
         [
             html.H5("Action", className="card-title"),
@@ -571,7 +608,7 @@ card_content1 = [
     ),
 ]
 card_content2 = [
-    dbc.CardHeader("Transportation"),
+    dbc.CardHeader("Transportation",style={'fontSize':20}),
     dbc.CardBody(
         [
             html.H5("Action", className="card-title"),
@@ -580,7 +617,7 @@ card_content2 = [
     ),
     ]
 card_content3 = [
-    dbc.CardHeader("Electric Station"),
+    dbc.CardHeader("Power Station",style={'fontSize':20}),
     dbc.CardBody(
         [
             html.H5("Action", className="card-title"),
@@ -673,7 +710,7 @@ app.layout = dbc.Container(
                             children=[
                                 dbc.FormGroup(
                                     [
-                                        html.Div(id="plot_label",style={'font-weight': 'bold'}),
+                                        html.Div(id="plot_label",style={'font-weight': 'bold','fontSize':20}),
                                         html.Br(),
                 #dbc.Label("3D view of Hospital Capacities in Mumbai City"),
                 dcc.Graph( figure=plotfig,
@@ -743,7 +780,7 @@ def display_table(dropdown_value,b_click):
     elif b_click==0:
         return 'secondary','secondary','secondary',grouped.to_dict('records'),[{"name": i, "id": i} for i in grouped.columns],base_map,plotfig, label_3d
     else:
-        return result[4],result[6],result[5],grouped.to_dict('records'),[{"name": i, "id": i} for i in grouped.columns],fig_heat,plotfig, label_3d
+        return result[4],result[6],result[5],grouped.to_dict('records'),[{"name": i, "id": i} for i in grouped.columns],fig_heat,maddpg_fig, "MADDPG Model Rewards"
 
         
     
@@ -764,4 +801,3 @@ def summarize(n_clicks):
 
 if __name__ == "__main__":
     app.run_server(debug=False, use_reloader=False)
-
